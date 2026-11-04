@@ -722,13 +722,8 @@ img { display: block; max-width: 100%; height: auto; }
 
 .stage__chain {
   padding: clamp(48px, 7vw, 80px) 20px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
+  overflow: hidden;
 }
-
-.stage__chain.fade-r { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); }
-.stage__chain.fade-l { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px); mask-image: linear-gradient(90deg, transparent, #000 56px); }
-.stage__chain.fade-l.fade-r { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
 
 .chain {
   display: block;
@@ -739,6 +734,7 @@ img { display: block; max-width: 100%; height: auto; }
 
 /* chain links, styled after the prototype: matte black bodies, brushed-metal joint plates */
 
+.chain__inner,
 .link { transition: transform var(--t-slow) var(--ease); }
 
 .l-body { fill: url(#g-body); stroke: var(--link-edge); stroke-width: 1; }

@@ -156,7 +156,8 @@
     gradient('g-plate', [[0, '#e2e6e8'], [0.45, '#b6bdc1'], [0.55, '#a1a9ad'], [1, '#c4cacd']]),
     gradient('g-metal', [[0, '#8f979b'], [0.5, '#d4d9dc'], [1, '#737b7f']])
   );
-  svg.append(defs);
+  const inner = s('g', { class: 'chain__inner' });
+  svg.append(defs, inner);
 
   const nodes = new Map();
   const cards = new Map();
@@ -233,7 +234,7 @@
       const node = buildLink(key);
       nodes.set(key, node);
       fresh.push(node);
-      svg.insertBefore(node, nextNodeAfter(key, keys));
+      inner.insertBefore(node, nextNodeAfter(key, keys));
       if (motion) {
         node.classList.add('is-entering');
         node.addEventListener('animationend', () => node.classList.remove('is-entering'), { once: true });
@@ -242,52 +243,42 @@
 
     layout(keys, fresh, !animate);
     updateUI(keys);
-    if (motion && fresh.length === 1) revealLink(fresh[0]);
   }
 
   function layout(keys = keysOf(activeSet()), fresh = [], instant = false) {
     const lens = keys.map((k) => specFor(k).len);
-    const chainW = TONGUE + lens.reduce((sum, len) => sum + len, 0) + (keys.length - 1) * G + PAD_X * 2;
+    const chainW = TONGUE + lens.reduce((sum, len) => sum + len, 0) + (keys.length - 1) * G;
     const style = getComputedStyle(wrap);
     const avail = wrap.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-    // Fixed scale: the box keeps its size and links keep theirs; a long chain scrolls instead of shrinking.
-    const k = avail < 640 ? 0.95 : 1.3;
-    const vw = Math.max(avail / k, chainW);
-    const vh = H + PAD_Y * 2;
 
-    svg.setAttribute('viewBox', `0 0 ${vw} ${vh}`);
-    svg.setAttribute('width', vw * k);
-    svg.setAttribute('height', vh * k);
+    // The box keeps one size; when the chain gets longer than the box, the whole chain scales down to fit.
+    const kPref = avail < 640 ? 0.95 : 1.3;
+    const boxH = (H + PAD_Y * 2) * kPref;
+    const k = Math.min(kPref, (avail - PAD_X * 2) / chainW);
 
-    let x = (vw - chainW) / 2 + PAD_X + TONGUE;
+    svg.setAttribute('viewBox', `0 0 ${avail} ${boxH}`);
+    svg.setAttribute('width', avail);
+    svg.setAttribute('height', boxH);
+
+    place(inner, `translate(${(avail - chainW * k) / 2}px, ${(boxH - H * k) / 2}px) scale(${k})`, instant);
+
+    let x = TONGUE;
     keys.forEach((key, i) => {
       const node = nodes.get(key);
-      const t = `translate(${x}px, ${PAD_Y}px)`;
-      if (instant || fresh.includes(node)) {
-        node.style.transition = 'none';
-        node.style.transform = t;
-        node.getBoundingClientRect();
-        node.style.transition = '';
-      } else {
-        node.style.transform = t;
-      }
+      place(node, `translate(${x}px, 0px)`, instant || fresh.includes(node));
       x += lens[i] + G;
     });
-
-    updateFade();
   }
 
-  function revealLink(node) {
-    const r = node.getBoundingClientRect();
-    const w = wrap.getBoundingClientRect();
-    if (r.left >= w.left && r.right <= w.right) return;
-    wrap.scrollBy({ left: r.left - w.left - (w.width - r.width) / 2, behavior: 'smooth' });
-  }
-
-  function updateFade() {
-    const max = wrap.scrollWidth - wrap.clientWidth;
-    wrap.classList.toggle('fade-l', max > 1 && wrap.scrollLeft > 2);
-    wrap.classList.toggle('fade-r', max > 1 && wrap.scrollLeft < max - 2);
+  function place(el, transform, instant) {
+    if (!instant) {
+      el.style.transform = transform;
+      return;
+    }
+    el.style.transition = 'none';
+    el.style.transform = transform;
+    el.getBoundingClientRect();
+    el.style.transition = '';
   }
 
   function updateUI(keys) {
@@ -467,8 +458,6 @@
     saveCustom();
     sync(true);
   });
-
-  wrap.addEventListener('scroll', updateFade, { passive: true });
 
   let raf = 0;
   new ResizeObserver(() => {

@@ -2,7 +2,10 @@
   const SIZE = { S: 48, M: 72, L: 96 };
   const SIZE_NAME = { S: 'malý', M: 'střední', L: 'velký' };
   const SIZE_SCALE = { S: 1, M: 1.5, L: 2 };
-  const BAT_SIZES = [['S', 'Malá'], ['M', 'Střední'], ['L', 'Velká']];
+  const SIZES = ['S', 'M', 'L'];
+  const BAT_LABEL = { S: 'Malá', M: 'Střední', L: 'Velká' };
+  const BAT_ACC = { S: 'malou', M: 'střední', L: 'velkou' };
+  const BAT_MAX = 3;
 
   const BASE = [
     { name: 'Srdeční tep', desc: 'Optický senzor tepu' },
@@ -24,28 +27,25 @@
     { key: 'sat', code: 'SAT', size: 'L', name: 'Satelitní komunikace', desc: 'Spojení i mimo mobilní signál.' },
   ];
 
-  const BATTERY = { code: 'BAT', name: 'Přídavná baterie', desc: 'Delší výdrž na jedno nabití.' };
+  const BATTERY = { code: 'BAT', name: 'Přídavná baterie', desc: `Delší výdrž. Přidat jde i víc baterií, od každé velikosti až ${BAT_MAX}.` };
 
   const CUSTOM_DESC = 'Vaše sestava. Moduly přidáte kliknutím a sestava zůstane uložená, i když mezitím přepnete na ukázku.';
 
   const PRESETS = [
-    { id: 'base', label: 'Jen základ', desc: 'Jen základní článek: tep, spánkové fáze, gesta a spojení s telefonem.', mods: [], bat: null },
-    { id: 'watch', label: 'Vedle hodinek', desc: 'Na druhou ruku ke klasickým hodinkám: placení zápěstím a tichý budík vibrací.', mods: ['nfc', 'vib'], bat: null },
-    { id: 'summer', label: 'Léto', desc: 'Placení bez telefonu, hlídání UVB záření a delší výdrž.', mods: ['nfc', 'uvb'], bat: 'M' },
-    { id: 'hills', label: 'Hory', desc: 'Poloha, nadmořská výška, spojení mimo signál a dobíjení ze slunce.', mods: ['gps', 'alt', 'sat', 'sol'], bat: 'L' },
-    { id: 'all', label: 'Všechno', desc: 'Všechny moduly a velká baterie.', mods: MODULES.map((m) => m.key), bat: 'L' },
-  ].map((p) => ({ ...p, mods: new Set(p.mods) }));
-
-  const HERO = [
-    ['sol', 'grey'], ['gps', 'black'], ['nfc', 'grey'], ['vib', 'black'], ['base', 'black'],
-    ['uvb', 'grey'], ['bia', 'black'], ['alt', 'grey'], ['sat', 'black'], ['bat:L', 'grey'],
-  ];
+    { id: 'base', label: 'Jen základ', desc: 'Jen základní článek: tep, spánkové fáze, gesta a spojení s telefonem.', mods: [], bats: {} },
+    { id: 'watch', label: 'Vedle hodinek', desc: 'Na druhou ruku ke klasickým hodinkám: placení zápěstím a tichý budík vibrací.', mods: ['nfc', 'vib'], bats: {} },
+    { id: 'summer', label: 'Léto', desc: 'Placení bez telefonu, hlídání UVB záření a dvě malé baterie navíc.', mods: ['nfc', 'uvb'], bats: { S: 2 } },
+    { id: 'hills', label: 'Hory', desc: 'Poloha, nadmořská výška, spojení mimo signál a dobíjení ze slunce.', mods: ['gps', 'alt', 'sat', 'sol'], bats: { L: 1 } },
+    { id: 'all', label: 'Všechno', desc: 'Všechny moduly a baterie ve všech třech velikostech.', mods: MODULES.map((m) => m.key), bats: { S: 1, M: 1, L: 1 } },
+  ].map((p) => ({ ...p, mods: new Set(p.mods), bats: { S: 0, M: 0, L: 0, ...p.bats } }));
 
   const H = 56;
-  const G = 16;
+  const G = 8;
+  const PLATE_H = 20;
+  const PLATE_IN = 7;
+  const TONGUE = G + PLATE_IN;
   const PAD_X = 24;
   const PAD_Y = 22;
-  const RING_Y = [12, 21, 30, 39];
 
   const NS = 'http://www.w3.org/2000/svg';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -75,29 +75,9 @@
     return many;
   }
 
-  function specFor(key) {
-    if (key === 'base') return { len: SIZE.L, label: 'ZÁKLAD', base: true };
-    if (key.startsWith('bat:')) return { len: SIZE[key.slice(4)], label: BATTERY.code };
-    const mod = MODULES.find((m) => m.key === key);
-    return { len: SIZE[mod.size], label: mod.code };
-  }
-
-  function buildLink(key, color) {
-    const { len: L, label, base } = specFor(key);
-    const g = s('g', { class: `link c-${color}${base ? ' is-base' : ''}` });
-    const inner = s('g', { class: 'link__in' });
-
-    inner.append(
-      s('rect', { class: 'j-clip', x: L - 2, y: 4, width: G - 1, height: H - 8, rx: 3 }),
-      s('rect', { class: 'j-neck', x: -6, y: 13, width: 8, height: H - 26 }),
-      s('rect', { class: 'j-cyl', x: -G + 3, y: 7, width: 9, height: H - 14, rx: 4.5 }),
-      ...RING_Y.map((y) => s('rect', { class: 'j-ring', x: -G + 2, y, width: 11, height: 2.5, rx: 1 })),
-      s('rect', { class: 'l-body', x: 0, y: 0, width: L, height: H, rx: 10 }),
-      s('rect', { class: 'l-bevel', x: 3, y: 3, width: L - 6, height: H - 6, rx: 7.5 }),
-      s('text', { class: 'l-text', x: L / 2, y: H / 2 + (base ? 3.5 : 4), 'text-anchor': 'middle' }, label)
-    );
-
-    g.append(inner);
+  function gradient(id, stops) {
+    const g = s('linearGradient', { id, x1: 0, y1: 0, x2: 0, y2: 1 });
+    for (const [offset, color] of stops) g.append(s('stop', { offset, 'stop-color': color }));
     return g;
   }
 
@@ -121,34 +101,39 @@
     store.set('skaplar-theme', next);
   });
 
-  /* hero: links hung on a circle, each one a rigid chord between two hinge points */
+  /* links */
 
-  function renderHero() {
-    const svg = document.getElementById('heroChain');
-    const R = 900;
-    const group = s('g');
-    svg.append(group);
-
-    const deltas = HERO.map(([key]) => 2 * Math.asin((specFor(key).len + G) / (2 * R)));
-    const point = (phi) => ({ x: R * Math.sin(phi), y: R * Math.cos(phi) });
-    let phi = -deltas.reduce((a, b) => a + b, 0) / 2;
-
-    HERO.forEach(([key, color], i) => {
-      const a = point(phi);
-      const b = point(phi + deltas[i]);
-      const angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
-      const node = buildLink(key, color);
-      node.setAttribute('transform', `translate(${a.x} ${a.y}) rotate(${angle}) translate(${G / 2} ${-H / 2})`);
-      node.firstChild.style.setProperty('--i', i);
-      group.append(node);
-      phi += deltas[i];
-    });
-
-    const bb = group.getBBox();
-    svg.setAttribute('viewBox', `${bb.x - 12} ${bb.y - 12} ${bb.width + 24} ${bb.height + 24}`);
+  function specFor(key) {
+    if (key === 'base') return { len: SIZE.L, label: 'ZÁKLAD', base: true };
+    if (key.startsWith('bat:')) return { len: SIZE[key.split(':')[1]], label: BATTERY.code };
+    const mod = MODULES.find((m) => m.key === key);
+    return { len: SIZE[mod.size], label: mod.code };
   }
 
-  renderHero();
+  // Each link owns the metal plate at its left end (male) and a slot at its right end (female).
+  // The next link's plate covers that slot, so the chain reads like the prototype's bridged joints.
+  function buildLink(key) {
+    const { len: L, label, base } = specFor(key);
+    const py = (H - PLATE_H) / 2;
+    const g = s('g', { class: base ? 'link is-base' : 'link' });
+    const inner = s('g', { class: 'link__in' });
+
+    inner.append(
+      s('rect', { class: 'l-body', x: 0, y: 0, width: L, height: H, rx: 7 }),
+      s('rect', { class: 'l-sheen', x: 1.5, y: 1.5, width: L - 3, height: H - 3, rx: 5.5 }),
+      s('rect', { class: 'l-cap', x: 0.6, y: 7, width: 2.2, height: H - 14, rx: 1 }),
+      s('rect', { class: 'l-cap', x: L - 2.8, y: 7, width: 2.2, height: H - 14, rx: 1 }),
+      ...[[6, 3.8], [6, H - 3.8], [L - 6, 3.8], [L - 6, H - 3.8]].map(([cx, cy]) => s('circle', { class: 'l-screw', cx, cy, r: 1.3 })),
+      s('rect', { class: 'l-slot', x: L - PLATE_IN, y: py, width: PLATE_IN, height: PLATE_H, rx: 1.5 }),
+      s('text', { class: 'l-text', x: L / 2, y: H / 2 + 3.8, 'text-anchor': 'middle' }, label),
+      s('rect', { class: 'l-plate', x: -TONGUE, y: py, width: TONGUE + PLATE_IN, height: PLATE_H, rx: 2 }),
+      s('line', { class: 'l-seam', x1: -G / 2, y1: py + 0.5, x2: -G / 2, y2: py + PLATE_H - 0.5 }),
+      s('line', { class: 'l-shine', x1: -TONGUE + 2, y1: py + 2.4, x2: PLATE_IN - 2, y2: py + 2.4 })
+    );
+
+    g.append(inner);
+    return g;
+  }
 
   /* builder */
 
@@ -165,12 +150,20 @@
   const setDesc = document.getElementById('setDesc');
   const adoptBtn = document.getElementById('adopt');
 
+  const defs = s('defs');
+  defs.append(
+    gradient('g-body', [[0, '#2d3134'], [0.5, '#1e2124'], [1, '#16181a']]),
+    gradient('g-plate', [[0, '#e2e6e8'], [0.45, '#b6bdc1'], [0.55, '#a1a9ad'], [1, '#c4cacd']]),
+    gradient('g-metal', [[0, '#8f979b'], [0.5, '#d4d9dc'], [1, '#737b7f']])
+  );
+  svg.append(defs);
+
   const nodes = new Map();
   const cards = new Map();
-  const sizeButtons = new Map();
+  const batRows = new Map();
   const presetButtons = new Map();
   let batCard;
-  let batBar;
+  let batCount;
   let ownBtn;
   let ownCount;
 
@@ -178,27 +171,36 @@
   const custom = loadCustom();
 
   function loadCustom() {
-    const set = { mods: new Set(), bat: null };
+    const set = { mods: new Set(), bats: { S: 0, M: 0, L: 0 } };
     const raw = store.get('skaplar-sestava');
     if (!raw) return set;
     try {
       const data = JSON.parse(raw);
       (data.mods || []).forEach((k) => { if (MODULES.some((m) => m.key === k)) set.mods.add(k); });
-      if (SIZE[data.bat]) set.bat = data.bat;
+      if (data.bats) {
+        for (const size of SIZES) set.bats[size] = Math.max(0, Math.min(BAT_MAX, Math.floor(Number(data.bats[size]) || 0)));
+      } else if (SIZE[data.bat]) {
+        set.bats[data.bat] = 1;
+      }
     } catch (e) { /* ignore a broken saved set */ }
     return set;
   }
 
   function saveCustom() {
-    store.set('skaplar-sestava', JSON.stringify({ mods: [...custom.mods], bat: custom.bat }));
+    store.set('skaplar-sestava', JSON.stringify({ mods: [...custom.mods], bats: custom.bats }));
   }
 
   const isLocked = () => view !== 'custom';
   const activeSet = () => (view === 'custom' ? custom : PRESETS.find((p) => p.id === view));
-  const countOf = (set) => set.mods.size + (set.bat ? 1 : 0);
+  const batTotal = (set) => SIZES.reduce((sum, size) => sum + set.bats[size], 0);
+  const countOf = (set) => set.mods.size + batTotal(set);
 
   function keysOf(set) {
-    return ['base', ...MODULES.filter((m) => set.mods.has(m.key)).map((m) => m.key), ...(set.bat ? [`bat:${set.bat}`] : [])];
+    const keys = ['base', ...MODULES.filter((m) => set.mods.has(m.key)).map((m) => m.key)];
+    for (const size of SIZES) {
+      for (let i = 0; i < set.bats[size]; i++) keys.push(`bat:${size}:${i}`);
+    }
+    return keys;
   }
 
   function nextNodeAfter(key, keys) {
@@ -228,7 +230,7 @@
     const fresh = [];
     for (const key of keys) {
       if (nodes.has(key)) continue;
-      const node = buildLink(key, 'black');
+      const node = buildLink(key);
       nodes.set(key, node);
       fresh.push(node);
       svg.insertBefore(node, nextNodeAfter(key, keys));
@@ -245,21 +247,19 @@
 
   function layout(keys = keysOf(activeSet()), fresh = [], instant = false) {
     const lens = keys.map((k) => specFor(k).len);
-    const chainW = lens.reduce((sum, len) => sum + len + G, 0) + G + PAD_X * 2;
+    const chainW = TONGUE + lens.reduce((sum, len) => sum + len, 0) + (keys.length - 1) * G + PAD_X * 2;
     const style = getComputedStyle(wrap);
     const avail = wrap.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-    const kPref = avail < 640 ? 0.9 : 1.5;
-    const kMin = 0.62;
-
-    const vw = Math.max(avail / kPref, chainW);
+    // Fixed scale: the box keeps its size and links keep theirs; a long chain scrolls instead of shrinking.
+    const k = avail < 640 ? 0.95 : 1.3;
+    const vw = Math.max(avail / k, chainW);
     const vh = H + PAD_Y * 2;
-    const pxW = avail / vw < kMin ? vw * kMin : avail;
 
     svg.setAttribute('viewBox', `0 0 ${vw} ${vh}`);
-    svg.setAttribute('width', pxW);
-    svg.setAttribute('height', (vh * pxW) / vw);
+    svg.setAttribute('width', vw * k);
+    svg.setAttribute('height', vh * k);
 
-    let x = (vw - chainW) / 2 + PAD_X + G;
+    let x = (vw - chainW) / 2 + PAD_X + TONGUE;
     keys.forEach((key, i) => {
       const node = nodes.get(key);
       const t = `translate(${x}px, ${PAD_Y}px)`;
@@ -302,7 +302,9 @@
     stageName.textContent = preset ? `Ukázka: ${preset.label}` : 'Vlastní sestava';
 
     const names = ['základ', ...MODULES.filter((x) => set.mods.has(x.key)).map((x) => x.name)];
-    if (set.bat) names.push(`${BATTERY.name} (${BAT_SIZES.find(([k]) => k === set.bat)[1].toLowerCase()})`);
+    for (const size of SIZES) {
+      if (set.bats[size]) names.push(`${set.bats[size]}× ${BAT_LABEL[size].toLowerCase()} baterie`);
+    }
     svg.setAttribute('aria-label', `Náramek: ${names.join(', ')}`);
 
     const own = countOf(custom);
@@ -326,11 +328,15 @@
       else card.removeAttribute('aria-disabled');
     }
 
-    batCard.classList.toggle('is-on', Boolean(set.bat));
-    batBar.style.setProperty('--s', set.bat ? SIZE_SCALE[set.bat] : 1);
-    for (const [size, btn] of sizeButtons) {
-      btn.setAttribute('aria-pressed', String(set.bat === size));
-      btn.disabled = locked;
+    const total = batTotal(set);
+    batCard.classList.toggle('is-on', total > 0);
+    batCount.textContent = `${total}×`;
+    for (const [size, row] of batRows) {
+      const count = set.bats[size];
+      row.el.classList.toggle('is-on', count > 0);
+      row.out.textContent = String(count);
+      row.minus.disabled = locked || count === 0;
+      row.plus.disabled = locked || count >= BAT_MAX;
     }
   }
 
@@ -341,12 +347,20 @@
     return bar;
   }
 
+  function icon(paths) {
+    const el = s('svg', { viewBox: '0 0 12 12', 'aria-hidden': 'true' });
+    for (const [cls, d] of paths) {
+      const p = s('path', { d });
+      if (cls) p.setAttribute('class', cls);
+      el.append(p);
+    }
+    return el;
+  }
+
   function stateIcon() {
     const state = h('span', 'mod__state');
     state.setAttribute('aria-hidden', 'true');
-    const icon = s('svg', { viewBox: '0 0 12 12' });
-    icon.append(s('path', { class: 'i-plus', d: 'M6 1.5v9M1.5 6h9' }), s('path', { class: 'i-check', d: 'M2 6.4l2.6 2.6L10 3.2' }));
-    state.append(icon);
+    state.append(icon([['i-plus', 'M6 1.5v9M1.5 6h9'], ['i-check', 'M2 6.4l2.6 2.6L10 3.2']]));
     return state;
   }
 
@@ -378,25 +392,50 @@
   batCard = h('div', 'mod mod--bat');
   batCard.setAttribute('role', 'group');
   batCard.setAttribute('aria-labelledby', 'batName');
-  const batCode = h('span', 'mod__code');
-  batBar = sizeBar(1);
-  batCode.append(batBar, `${BATTERY.code} · 3 velikosti`);
+  const batState = h('span', 'mod__state');
+  batState.setAttribute('aria-hidden', 'true');
+  batCount = h('span', 'i-count');
+  batState.append(icon([['i-plus', 'M6 1.5v9M1.5 6h9']]), batCount);
   const batName = h('span', 'mod__name', BATTERY.name);
   batName.id = 'batName';
-  const sizes = h('div', 'sizes');
-  for (const [size, label] of BAT_SIZES) {
-    const btn = h('button', 'size', label);
-    btn.type = 'button';
-    btn.addEventListener('click', () => {
-      if (isLocked()) return;
-      custom.bat = custom.bat === size ? null : size;
+  const bats = h('div', 'bats');
+
+  for (const size of SIZES) {
+    const el = h('div', 'bat');
+    const label = h('span', 'bat__label');
+    label.append(sizeBar(SIZE_SCALE[size]), BAT_LABEL[size]);
+    const stepper = h('div', 'stepper');
+    const minus = h('button', 'step');
+    minus.type = 'button';
+    minus.setAttribute('aria-label', `Odebrat ${BAT_ACC[size]} baterii`);
+    minus.append(icon([['', 'M2 6h8']]));
+    const out = h('output', '', '0');
+    out.setAttribute('aria-label', `${BAT_LABEL[size]} baterie, počet`);
+    const plus = h('button', 'step step--add');
+    plus.type = 'button';
+    plus.setAttribute('aria-label', `Přidat ${BAT_ACC[size]} baterii`);
+    plus.append(icon([['', 'M6 2v8M2 6h8']]));
+
+    minus.addEventListener('click', () => {
+      if (isLocked() || custom.bats[size] === 0) return;
+      custom.bats[size] -= 1;
       saveCustom();
       sync(true);
     });
-    sizeButtons.set(size, btn);
-    sizes.append(btn);
+    plus.addEventListener('click', () => {
+      if (isLocked() || custom.bats[size] >= BAT_MAX) return;
+      custom.bats[size] += 1;
+      saveCustom();
+      sync(true);
+    });
+
+    stepper.append(minus, out, plus);
+    el.append(label, stepper);
+    bats.append(el);
+    batRows.set(size, { el, out, minus, plus });
   }
-  batCard.append(batCode, stateIcon(), batName, h('span', 'mod__desc', BATTERY.desc), sizes);
+
+  batCard.append(h('span', 'mod__code', `${BATTERY.code} · 3 velikosti`), batState, batName, h('span', 'mod__desc', BATTERY.desc), bats);
   modGrid.append(batCard);
 
   ownBtn = h('button', 'set set--own', 'Vlastní');
@@ -423,7 +462,7 @@
   adoptBtn.addEventListener('click', () => {
     const preset = activeSet();
     custom.mods = new Set(preset.mods);
-    custom.bat = preset.bat;
+    custom.bats = { ...preset.bats };
     view = 'custom';
     saveCustom();
     sync(true);

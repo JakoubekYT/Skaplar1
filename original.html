@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skaplar — modulární náramek bez displeje</title>
+<meta name="description" content="Skaplar je chytrý náramek bez displeje a bez notifikací. Skládá se z článků, každý článek je modul a vy si vyberete, co bude měřit.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script>
+  try { if (localStorage.getItem('skaplar-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/main.js" defer></script>
+</head>
+<body>
+<div style="background:#0b0c10;color:#e5e7eb;font-family:system-ui,-apple-system,sans-serif;font-size:13px;padding:9px 16px;text-align:center;border-bottom:1px solid #1f2937;position:relative;z-index:9999;">
+  📦 <strong>Záloha původního webu:</strong> Prohlížíte archivovaný koncept náramku Skaplar. <a href="index.html" style="color:#38bdf8;margin-left:8px;font-weight:600;text-decoration:underline;">Přejít na hlavní web: ShitBook — Hypergamie MacBooků &rarr;</a>
+</div>
+<a class="skip" href="#obsah">Přeskočit na obsah</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><path d="M12 6H24Q26 6 26 8V12H22V20H26V24Q26 26 24 26H12Q10 26 10 24V20H7Q6 20 6 19V13Q6 12 7 12H10V8Q10 6 12 6Z"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap top__in">
+    <a class="logo" href="#"><svg class="logo__mark" aria-hidden="true"><use href="#mark"/></svg>SKAPLAR</a>
+    <div class="top__right">
+      <nav class="nav" aria-label="Sekce">
+        <a href="#koncept">Koncept</a>
+        <a href="#sestavit">Sestavit</a>
+        <a href="#spoj">Spoj</a>
+        <a href="#vyvoj">Vývoj</a>
+      </nav>
+      <button class="theme" id="themeToggle" type="button" aria-pressed="false" aria-label="Tmavý režim">
+        <svg class="theme__sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>
+        <svg class="theme__moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8 8 0 0 1 9.8 4a8 8 0 1 0 10.2 10.2Z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="obsah">
+
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__text">
+        <p class="kicker">Modulární náramek bez displeje</p>
+        <h1 class="hero__mark">SKAPLAR</h1>
+        <p class="hero__lede">Náramek bez displeje a&nbsp;bez notifikací. Skládá se z&nbsp;článků, každý článek je modul a&nbsp;vy si vyberete, co bude měřit.</p>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#sestavit">Sestavit náramek<svg class="btn__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></a>
+          <a class="btn btn--ghost" href="#spoj">Jak drží moduly</a>
+        </div>
+        <dl class="stats">
+          <div><dt>displejů</dt><dd>0</dd></div>
+          <div><dt>modulů k&nbsp;dokoupení</dt><dd>9</dd></div>
+          <div><dt>velikosti článků</dt><dd>3</dd></div>
+        </dl>
+      </div>
+
+      <figure class="hero__photo">
+        <div class="photo">
+          <img src="img/bandprototype.webp" width="1024" height="1024" alt="Vizualizace prototypu: černý článkový náramek bez displeje s kovovými spoji mezi články" fetchpriority="high">
+          <span class="pin pin--l" style="left:43.6%;top:20.8%"><b>Spoj</b></span>
+          <span class="pin pin--r" style="left:70.8%;top:37.6%"><b>Senzor tepu</b></span>
+          <span class="pin pin--l" style="left:25.6%;top:73.4%"><b>NFC</b></span>
+          <span class="pin pin--l" style="left:63.5%;top:63.5%"><b>Baterie</b></span>
+        </div>
+        <figcaption>Vizualizace prototypu</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="koncept" aria-labelledby="koncept-h">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="kicker">Koncept</p>
+          <h2 id="koncept-h">Data ano, notifikace ne</h2>
+        </div>
+        <div class="head__text">
+          <p>Chytré hodinky dnes umí upozornit na nepravidelný srdeční rytmus a&nbsp;lidé takové funkce chtějí. Spolu s&nbsp;nimi ale dostanou na ruku displej a&nbsp;notifikace.</p>
+          <p>Skaplar si nechává měření a&nbsp;displej vynechává. Náramek je rozdělený na články, každý článek je modul a&nbsp;skládáte jen ty, které potřebujete. Platíte tak jen za to, co opravdu použijete.</p>
+        </div>
+      </div>
+
+      <dl class="spec">
+        <div><dt>Displej</dt><dd>Žádný</dd></div>
+        <div><dt>Tvar</dt><dd>Článkový náramek velikosti sportovních náramků Garmin, články designem jako u&nbsp;kovových hodinek</dd></div>
+        <div><dt>Spojení s telefonem</dt><dd>Bluetooth Low Energy. Zvažujeme i&nbsp;NFC, které ušetří místo.</dd></div>
+        <div><dt>Moduly</dt><dd>6&nbsp;funkcí v&nbsp;základu, 9&nbsp;dokoupitelných modulů ve třech velikostech</dd></div>
+        <div><dt>Barvy</dt><dd><span class="sw sw--black" aria-hidden="true"></span>Volcanic Black <span class="sw sw--grey" aria-hidden="true"></span>Glacier Grey, matné a&nbsp;libovolně kombinovatelné</dd></div>
+        <div><dt>Open source</dt><dd>O&nbsp;nových modulech rozhoduje komunita</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--tint section--compact" id="nazev" aria-labelledby="nazev-h">
+    <div class="wrap">
+      <div class="head head--tight">
+        <div>
+          <p class="kicker">Název</p>
+          <h2 id="nazev-h">Proč Skaplar</h2>
+        </div>
+        <div class="head__text">
+          <p>Spojení islandského kořene „skap“ a&nbsp;slova „modular“.</p>
+        </div>
+      </div>
+
+      <div class="words">
+        <article class="word">
+          <p class="word__term" lang="is">skap</p>
+          <p class="word__def">nálada, stav mysli, kondice</p>
+          <p class="word__note">To, co náramek sleduje.</p>
+        </article>
+        <article class="word">
+          <p class="word__term" lang="is">að skapa</p>
+          <p class="word__def">tvořit, tvarovat, skládat</p>
+          <p class="word__note">Náramek si poskládáte sami.</p>
+        </article>
+        <article class="word">
+          <p class="word__term">Island</p>
+          <p class="word__def">ticho bez displejů a&nbsp;notifikací</p>
+          <p class="word__note">A&nbsp;odolnost vůči vodě a&nbsp;potu.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section build" id="sestavit" aria-labelledby="sestavit-h">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="kicker">Konfigurátor</p>
+          <h2 id="sestavit-h">Sestavte si náramek</h2>
+        </div>
+        <div class="head__text">
+          <p>Základ je v&nbsp;každém náramku. Moduly mají tři velikosti, baterií můžete přidat i&nbsp;víc a&nbsp;náramek s&nbsp;každým článkem roste.</p>
+        </div>
+      </div>
+
+      <div class="sets">
+        <div class="sets__row">
+          <div class="sets__own" id="setOwn"></div>
+          <span class="sets__label">Ukázky</span>
+          <div class="sets__presets" id="setPresets" role="group" aria-label="Ukázkové sestavy"></div>
+        </div>
+        <div class="sets__info">
+          <p id="setDesc"></p>
+          <button class="btn btn--small btn--ghost" id="adopt" type="button" hidden></button>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage__bar">
+          <p class="stage__name" id="stageName"></p>
+          <p class="readout" id="readout" aria-live="polite"></p>
+        </div>
+        <div class="stage__chain" id="chainWrap">
+          <svg class="chain" id="chain" role="img" aria-label="Náramek"></svg>
+        </div>
+      </div>
+
+      <div class="build__grid">
+        <aside class="base" aria-labelledby="base-h">
+          <h3 class="label label--accent" id="base-h">V základu · velký článek</h3>
+          <ul class="base__list" id="baseList"></ul>
+        </aside>
+
+        <div class="mods" id="mods">
+          <div class="mods__head">
+            <h3 class="label">Dokoupitelné moduly</h3>
+            <p class="mods__hint" id="modsHint"></p>
+          </div>
+          <div class="mods__grid" id="modGrid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint" id="spoj" aria-labelledby="spoj-h">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="kicker">Spoj</p>
+          <h2 id="spoj-h">Jak drží moduly u&nbsp;sebe</h2>
+        </div>
+        <div class="head__text">
+          <p>Každý modul má na jedné straně kovový jazýček (samec) a&nbsp;na druhé drážku (samici). Jazýček se zasune do drážky sousedního modulu, zacvakne a&nbsp;funguje jako kloub, takže náramek kopíruje zápěstí.</p>
+        </div>
+      </div>
+
+      <div class="joint">
+        <figure class="fig">
+          <svg class="diagram" viewBox="0 0 560 220" role="img" aria-label="Pohled shora: drážka se dvěma otvory na jednom modulu a kovový jazýček se dvěma západkami na druhém modulu">
+            <g class="d-arrow">
+              <line x1="304" y1="30" x2="230" y2="30"/>
+              <path d="M236 25 L228 30 L236 35"/>
+            </g>
+            <text class="d-text" x="266" y="18" text-anchor="middle">zasunout</text>
+
+            <rect class="d-body" x="24" y="50" width="196" height="120" rx="14"/>
+            <rect class="d-bevel" x="29" y="55" width="186" height="110" rx="10"/>
+            <rect class="d-slot" x="194" y="78" width="26" height="64" rx="2"/>
+            <rect class="d-hole" x="202" y="84" width="11" height="12" rx="1.5"/>
+            <rect class="d-hole" x="202" y="124" width="11" height="12" rx="1.5"/>
+            <rect class="d-gold" x="213" y="100" width="6" height="3" rx="1"/>
+            <rect class="d-gold" x="213" y="106" width="6" height="3" rx="1"/>
+            <rect class="d-gold" x="213" y="112" width="6" height="3" rx="1"/>
+            <rect class="d-gold" x="213" y="118" width="6" height="3" rx="1"/>
+
+            <rect class="d-body" x="320" y="50" width="216" height="120" rx="14"/>
+            <rect class="d-bevel" x="325" y="55" width="206" height="110" rx="10"/>
+            <rect class="d-plate" x="286" y="80" width="58" height="60" rx="3"/>
+            <line class="d-seam" x1="315" y1="81" x2="315" y2="139"/>
+            <rect class="d-plate" x="278" y="86" width="9" height="12" rx="1.5"/>
+            <rect class="d-plate" x="278" y="122" width="9" height="12" rx="1.5"/>
+            <rect class="d-gold" x="289" y="100" width="7" height="3" rx="1"/>
+            <rect class="d-gold" x="289" y="106" width="7" height="3" rx="1"/>
+            <rect class="d-gold" x="289" y="112" width="7" height="3" rx="1"/>
+            <rect class="d-gold" x="289" y="118" width="7" height="3" rx="1"/>
+
+            <line class="d-lead" x1="207" y1="146" x2="207" y2="186"/>
+            <text class="d-text" x="216" y="203" text-anchor="end">samice · drážka</text>
+            <line class="d-lead" x1="300" y1="144" x2="300" y2="186"/>
+            <text class="d-text" x="290" y="203">samec · kovový jazýček</text>
+          </svg>
+          <figcaption>Shora, rozpojeno</figcaption>
+        </figure>
+
+        <figure class="fig">
+          <svg class="diagram" viewBox="0 0 560 220" role="img" aria-label="Z boku: kovový můstek spojuje dva moduly a na čepu se ohýbá jako kloub">
+            <rect class="d-body" x="60" y="100" width="190" height="28" rx="10"/>
+            <rect class="d-plate" x="226" y="94" width="31" height="7" rx="2"/>
+
+            <g class="bend">
+              <rect class="d-body" x="260" y="100" width="190" height="28" rx="10"/>
+              <rect class="d-plate" x="253" y="94" width="31" height="7" rx="2"/>
+            </g>
+
+            <circle class="d-metal" cx="255" cy="104" r="5"/>
+            <circle class="d-pivot" cx="255" cy="104" r="1.8"/>
+
+            <g class="d-arrow">
+              <path d="M466 63 A215 215 0 0 1 466 145"/>
+              <path d="M462.4 70.8 L466 63 L472.2 68.9"/>
+              <path d="M462.4 137.2 L466 145 L472.2 139.1"/>
+            </g>
+            <text class="d-text" x="480" y="108">kloub</text>
+
+            <line class="d-lead" x1="242" y1="90" x2="242" y2="56"/>
+            <text class="d-text" x="242" y="46" text-anchor="middle">kovový můstek</text>
+            <line class="d-lead" x1="255" y1="132" x2="255" y2="170"/>
+            <text class="d-text" x="255" y="188" text-anchor="middle">čep</text>
+          </svg>
+          <figcaption>Z boku, spojeno</figcaption>
+        </figure>
+      </div>
+
+      <div class="joint__info">
+        <ol class="steps">
+          <li><b>Zasunout.</b> Kovový jazýček jednoho modulu se zasune do drážky druhého.</li>
+          <li><b>Zacvaknout.</b> Dvě západky na konci jazýčku zacvaknou do otvorů v&nbsp;drážce.</li>
+          <li><b>Ohýbat.</b> Jazýček je uprostřed na čepu, takže se spoj ohýbá jako koleno.</li>
+        </ol>
+
+        <div class="contacts">
+          <h3 class="contacts__h">Kontakty <span class="tag">návrh</span></h3>
+          <p>Na jazýčku jsou 4&nbsp;kontaktní plošky, v&nbsp;drážce 4&nbsp;pružné kontakty. Po zacvaknutí na sebe dosednou a&nbsp;přes čep vedou dál i&nbsp;při ohnutí.</p>
+          <table class="pins">
+            <tbody>
+              <tr><th scope="row">+</th><td>napájení</td></tr>
+              <tr><th scope="row">−</th><td>zem</td></tr>
+              <tr><th scope="row">SDA</th><td>data, I²C</td></tr>
+              <tr><th scope="row">SCL</th><td>takt, I²C</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Přes sběrnici I²C základ pozná, jaký modul je připojený.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="vyvoj" aria-labelledby="vyvoj-h">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="kicker">Vývoj</p>
+          <h2 id="vyvoj-h">Jak se bude vyvíjet</h2>
+        </div>
+      </div>
+      <div class="evo">
+        <article>
+          <h3>Nové verze základu</h3>
+          <p>Základ se bude postupně vylepšovat, hlavně kvůli baterii. Starší moduly k&nbsp;němu budou dál pasovat.</p>
+        </article>
+        <article>
+          <h3>Moduly podle komunity</h3>
+          <p>Sledujeme, co chce komunita na Redditu, a&nbsp;nejžádanější modul vydáme jako další. V&nbsp;tomhle smyslu je Skaplar open source.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <span class="logo"><svg class="logo__mark" aria-hidden="true"><use href="#mark"/></svg>SKAPLAR</span>
+    <span>Koncept modulárního náramku · 2026</span>
+  </div>
+</footer>
+</body>
+</html>

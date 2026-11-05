@@ -1,1 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0f2226"/><path fill="#66becb" d="M12 6H24Q26 6 26 8V12H22V20H26V24Q26 26 24 26H12Q10 26 10 24V20H7Q6 20 6 19V13Q6 12 7 12H10V8Q10 6 12 6Z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="sbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+  </defs>
+  <!-- Background icon squircle -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)"/>
+  <rect width="62" height="62" x="1" y="1" rx="15" fill="none" stroke="#27272a" stroke-width="1.5"/>
+  
+  <!-- Sleek Laptop open -->
+  <path d="M16 18 C16 16.5 17 15.5 18.5 15.5 L45.5 15.5 C47 15.5 48 16.5 48 18 L48 37 C48 38 47 39 45.5 39 L18.5 39 C17 39 16 38 16 37 Z" fill="#27272a" stroke="#52525b" stroke-width="1"/>
+  
+  <!-- Screen Notch -->
+  <path d="M28 16 L36 16 L35 19 L29 19 Z" fill="#09090b"/>
+  
+  <!-- Screen content: Crown / Shit / Flex icon -->
+  <path d="M25 32 L32 23 L39 32 L34 32 L34 34 L30 34 L30 32 Z" fill="url(#sbGrad)"/>
+  <circle cx="32" cy="22" r="1.5" fill="#facc15"/>
+  
+  <!-- Laptop base -->
+  <path d="M12 41 C12 40 13 39.5 14 39.5 L50 39.5 C51 39.5 52 40 52 41 L53 43 C53 44.5 51.5 45.5 50 45.5 L14 45.5 C12.5 45.5 11 44.5 11 43 Z" fill="#3f3f46"/>
+  <rect x="28" y="40" width="8" height="1.5" rx="0.75" fill="#71717a"/>
+</svg>

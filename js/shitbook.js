@@ -1,6 +1,7 @@
 /**
  * SHITBOOK — HYPERGAMIE MACBOOKŮ (SKAPLAR.COM)
- * Interactive Engine: Configurator, E-Shop Cart, Hypergamy SMV Calculator, Web Audio FX
+ * Interactive Engine: Configurator, E-Shop Cart, Hypergamy SMV Calculator, Web Audio FX,
+ * Hypergamy Diagram SVG Renderer, FYP 2026 Soundboard & Aura Tracker
  */
 
 (() => {
@@ -11,7 +12,7 @@
      ========================================================================== */
   class SoundFX {
     constructor() {
-      this.enabled = localStorage.getItem('shitbook_sound') === 'true';
+      this.enabled = localStorage.getItem('shitbook_sound') !== 'false';
       this.ctx = null;
     }
 
@@ -62,6 +63,89 @@
       } catch (e) {}
     }
 
+    playAuraLoss() {
+      if (!this.enabled) return;
+      try {
+        this.initCtx();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.6);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.6);
+      } catch (e) {}
+    }
+
+    playPhonkBass() {
+      if (!this.enabled) return;
+      try {
+        this.initCtx();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(45, this.ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.5);
+      } catch (e) {}
+    }
+
+    playJetEngine() {
+      if (!this.enabled) return;
+      try {
+        this.initCtx();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const bufferSize = this.ctx.sampleRate * 0.8;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1200, this.ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(3200, this.ctx.currentTime + 0.7);
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.8);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start();
+      } catch (e) {}
+    }
+
+    playFlatline() {
+      if (!this.enabled) return;
+      try {
+        this.initCtx();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.9);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.9);
+      } catch (e) {}
+    }
+
     toggle() {
       this.enabled = !this.enabled;
       localStorage.setItem('shitbook_sound', this.enabled ? 'true' : 'false');
@@ -72,7 +156,7 @@
   const sfx = new SoundFX();
 
   /* ==========================================================================
-     CATALOG DATA
+     CATALOG DATA (WITH PHOTOGRAPHIC RENDERS)
      ========================================================================== */
   const PRODUCTS = [
     {
@@ -89,8 +173,9 @@
         'M4 Max 16-core CPU',
         'Zero Swap Memory',
         '120Hz ProMotion flex',
-        'Aura v Karlíně: +9999'
+        'Aura v Karlíně: +1 000 000'
       ],
+      image: 'img/shitbook_pro_spaceblack.jpg',
       svgType: 'pro16',
       color: 'spaceblack'
     },
@@ -110,6 +195,7 @@
         'HDMI port (žádný trapný dongle)',
         'Barista tě aspoň pozdraví'
       ],
+      image: 'img/shitbook_pro_spaceblack.jpg',
       svgType: 'pro14',
       color: 'spaceblack'
     },
@@ -127,7 +213,7 @@
         'Pasivní chlazení (smaží se na 104°C)',
         '8GB = 16GB certifikovaný copium',
         'Baterka na 74% kapacity',
-        'Aura v Karlíně: -500'
+        'Aura v Karlíně: -500 000'
       ],
       svgType: 'air13',
       color: 'rosegold'
@@ -148,6 +234,7 @@
         'Otisky prstů na laku do 3 sekund',
         'Aura ve Starbucks: Neutrální'
       ],
+      image: 'img/karlin_cafe_lifestyle.jpg',
       svgType: 'air15',
       color: 'starlight'
     },
@@ -167,6 +254,7 @@
         'Touch Bar svítí a zamrzá',
         'Výdrž baterie: 22 minut'
       ],
+      image: 'img/shitbook_chernobyl.jpg',
       svgType: 'chernobyl',
       color: 'silver'
     },
@@ -186,6 +274,7 @@
         'Praní zakázáno (ztráta záruky)',
         'Pocit nadřazenosti: 100%'
       ],
+      image: 'img/shitcloth_luxury.jpg',
       svgType: 'cloth',
       color: 'silver'
     },
@@ -263,7 +352,6 @@
       let price = product.basePrice;
       let smv = product.baseSmv;
 
-      // Price mods
       if (config.ramPrice) price += config.ramPrice;
       if (config.ssdPrice) price += config.ssdPrice;
       if (config.cloth) price += 890;
@@ -283,7 +371,8 @@
           smv: Math.min(10, Math.max(0.5, smv)),
           qty: 1,
           config: config,
-          svgType: product.svgType
+          svgType: product.svgType,
+          image: product.image
         });
       }
 
@@ -389,7 +478,7 @@
         return `
           <div class="cart-item-row" data-key="${item.key}">
             <div class="cart-item-thumb">
-              ${renderMiniSvg(item.svgType)}
+              ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;">` : renderMiniSvg(item.svgType)}
             </div>
             <div class="cart-item-details">
               <div class="cart-item-name">${item.name} (${item.qty}×)</div>
@@ -429,39 +518,15 @@
      SVG RENDER HELPERS
      ========================================================================== */
   function renderProductSvg(type, color = 'spaceblack') {
-    if (type === 'cloth') {
-      return `
-        <svg viewBox="0 0 200 160" class="product-svg-icon" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="clothG" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#f8fafc"/>
-              <stop offset="100%" stop-color="#cbd5e1"/>
-            </linearGradient>
-            <filter id="clothShadow" x="-10%" y="-10%" width="130%" height="130%">
-              <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.4"/>
-            </filter>
-          </defs>
-          <rect x="35" y="25" width="130" height="110" rx="12" fill="url(#clothG)" filter="url(#clothShadow)" stroke="#94a3b8" stroke-width="1.5"/>
-          <path d="M45 35 L155 35 M45 125 L155 125" stroke="#e2e8f0" stroke-dasharray="4 4"/>
-          <!-- Embossed logo -->
-          <circle cx="100" cy="80" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-          <path d="M96 76 C96 74 104 74 104 76 L104 84 C104 86 96 86 96 84 Z" fill="#94a3b8"/>
-          <text x="100" y="108" font-size="8" fill="#64748b" text-anchor="middle" font-family="sans-serif" font-weight="bold">SKAPLAR iCLOTH</text>
-        </svg>
-      `;
-    }
-
     if (type === 'dongle') {
       return `
         <svg viewBox="0 0 200 160" class="product-svg-icon" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="75" y="30" width="50" height="90" rx="8" fill="#1f2937" stroke="#4b5563" stroke-width="2"/>
           <rect x="85" y="10" width="30" height="20" rx="2" fill="#374151" stroke="#6b7280"/>
-          <!-- Cable tentacles -->
           <path d="M80 120 C60 140 30 135 25 150" stroke="#4b5563" stroke-width="4" stroke-linecap="round"/>
           <path d="M90 120 C85 145 70 150 70 160" stroke="#4b5563" stroke-width="4" stroke-linecap="round"/>
           <path d="M110 120 C115 145 130 150 130 160" stroke="#4b5563" stroke-width="4" stroke-linecap="round"/>
           <path d="M120 120 C140 140 170 135 175 150" stroke="#4b5563" stroke-width="4" stroke-linecap="round"/>
-          <!-- Ports -->
           <rect x="82" y="45" width="36" height="8" rx="2" fill="#090a0f"/>
           <rect x="82" y="60" width="36" height="8" rx="2" fill="#090a0f"/>
           <rect x="82" y="75" width="36" height="8" rx="2" fill="#090a0f"/>
@@ -513,32 +578,21 @@
             <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="${glowColor}" flood-opacity="0.25"/>
           </filter>
         </defs>
-        <!-- Lid -->
         <rect x="36" y="24" width="168" height="106" rx="10" fill="${lidColor}" stroke="${borderColor}" stroke-width="2.5" filter="url(#glow-${type})"/>
-        <!-- Notch -->
         <path d="M102 24 L138 24 L135 32 L105 32 Z" fill="#000"/>
         <circle cx="120" cy="28" r="1.5" fill="#38bdf8"/>
-        <!-- Screen Content -->
         <rect x="42" y="34" width="156" height="90" rx="4" fill="#030712"/>
         ${type === 'air13' ? `
-          <!-- Swap memory error -->
           <rect x="58" y="55" width="124" height="48" rx="6" fill="#1f1215" stroke="#f43f5e"/>
           <text x="120" y="73" font-size="8" fill="#f43f5e" font-family="monospace" text-anchor="middle" font-weight="bold">SWAP: 18.4 GB / 8 GB</text>
-          <text x="120" y="87" font-size="7" fill="#fda4af" font-family="monospace" text-anchor="middle">Safari: Webpage Not Responding</text>
-        ` : type === 'chernobyl' ? `
-          <!-- Fire / fan noise -->
-          <text x="120" y="68" font-size="16" text-anchor="middle">🔥 98°C</text>
-          <text x="120" y="86" font-size="7" fill="#fbbf24" font-family="monospace" text-anchor="middle">FAN: 7,200 RPM (LOUD)</text>
-          <rect x="46" y="116" width="148" height="4" fill="#ef4444"/>
+          <text x="120" y="87" font-size="7" fill="#fda4af" font-family="monospace" text-anchor="middle">Safari: Not Responding</text>
         ` : `
-          <!-- Gigachad terminal -->
-          <text x="50" y="52" font-size="7" fill="#10b981" font-family="monospace">SMV: GIGACHAD 10/10</text>
-          <text x="50" y="65" font-size="7" fill="#38bdf8" font-family="monospace">RAM_SWAP: 0.0 KB (NO COPE)</text>
-          <text x="50" y="78" font-size="7" fill="#94a3b8" font-family="monospace">CHAD_RADIUS: 45 METERS</text>
+          <text x="50" y="55" font-size="7" fill="#10b981" font-family="monospace">SMV: GIGACHAD 10/10</text>
+          <text x="50" y="68" font-size="7" fill="#38bdf8" font-family="monospace">RAM_SWAP: 0.0 KB (ZERO)</text>
+          <text x="50" y="81" font-size="7" fill="#94a3b8" font-family="monospace">CHAD_RADIUS: 45 METERS</text>
           <rect x="50" y="88" width="140" height="6" rx="3" fill="#1e293b"/>
           <rect x="50" y="88" width="135" height="6" rx="3" fill="#38bdf8"/>
         `}
-        <!-- Base / Keyboard deck -->
         <path d="M20 134 C20 132 24 130 30 130 L210 130 C216 130 220 132 220 134 L224 145 C224 148 220 150 214 150 L26 150 C20 150 16 148 16 145 Z" fill="${baseColor}" stroke="${borderColor}" stroke-width="1.5"/>
         <rect x="100" y="131" width="40" height="3" rx="1.5" fill="#475569"/>
       </svg>
@@ -550,7 +604,7 @@
   }
 
   /* ==========================================================================
-     RENDER PRODUCT CATALOG
+     RENDER PRODUCT CATALOG (WITH PHOTOGRAPHIC RENDERS)
      ========================================================================== */
   function renderProducts(filter = 'all') {
     const grid = document.getElementById('productsGrid');
@@ -568,7 +622,7 @@
         </div>
 
         <div class="product-visual-wrap">
-          ${renderProductSvg(prod.svgType, prod.color)}
+          ${prod.image ? `<img src="${prod.image}" alt="${prod.name}" class="product-img-render" loading="lazy">` : renderProductSvg(prod.svgType, prod.color)}
         </div>
 
         <div class="product-info">
@@ -597,6 +651,116 @@
         </div>
       </article>
     `).join('');
+  }
+
+  /* ==========================================================================
+     HYPERGAMY DIAGRAM ENGINE (RECREATION OF THE MEME GRAPHIC)
+     ========================================================================== */
+  function initHypergamyDiagram() {
+    const leftCanvas = document.getElementById('diagramCanvasLeft');
+    const rightCanvas = document.getElementById('diagramCanvasRight');
+    if (!leftCanvas || !rightCanvas) return;
+
+    // Generate Left SVG (Rational Needs: evenly distributed cross-matching)
+    // 10 personas (left) to 10 laptops (right)
+    const N = 10;
+    const stageHeight = 520;
+    const step = stageHeight / N;
+    const padding = step / 2;
+
+    let leftLinesSvg = `
+      <defs>
+        <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#e11d48" stop-opacity="0.5"/>
+        </linearGradient>
+      </defs>
+    `;
+
+    // Cross-connecting lines
+    for (let i = 0; i < N; i++) {
+      const y1 = i * step + padding;
+      // Connect to i, i-1, i+1, i+2
+      const targets = [i, (i + 1) % N, (i + 2) % N];
+      targets.forEach(t => {
+        const y2 = t * step + padding;
+        leftLinesSvg += `<line x1="38%" y1="${y1}" x2="62%" y2="${y2}" stroke="url(#redGrad)" stroke-width="1.2" stroke-opacity="0.45"/>`;
+        // Arrow head
+        leftLinesSvg += `<circle cx="62%" cy="${y2}" r="2" fill="#f43f5e"/>`;
+      });
+    }
+    leftCanvas.innerHTML = leftLinesSvg;
+
+    // Generate Right SVG (Hypergamy: ALL 10 personas point ONLY to top 2-3 laptops!)
+    let rightLinesSvg = `
+      <defs>
+        <linearGradient id="blueLaser" x1="100%" y1="0%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#0284c7" stop-opacity="0.8"/>
+        </linearGradient>
+      </defs>
+    `;
+
+    const topTargetsY = [
+      0 * step + padding,      // M4 Max 128GB
+      1 * step + padding,      // M4 Pro 24GB
+      2 * step + padding * 0.9 // M3 Max
+    ];
+
+    for (let i = 0; i < N; i++) {
+      const yFemale = i * step + padding;
+      // EVERY single female persona shoots arrows to topTargetsY[0], [1], [2]
+      topTargetsY.forEach(tY => {
+        rightLinesSvg += `<line x1="62%" y1="${yFemale}" x2="38%" y2="${tY}" stroke="url(#blueLaser)" stroke-width="1.5" stroke-opacity="0.75"/>`;
+        rightLinesSvg += `<circle cx="38%" cy="${tY}" r="2.5" fill="#38bdf8"/>`;
+      });
+    }
+    rightCanvas.innerHTML = rightLinesSvg;
+
+    // Hover interactions on right side nodes
+    const rightLaptops = document.querySelectorAll('#rightLaptopsList .diagram-node');
+    rightLaptops.forEach((node, idx) => {
+      node.addEventListener('mouseenter', () => {
+        sfx.playClick();
+        if (idx === 0) {
+          showToast('👑 M4 Max 128GB: 100% poptávky na trhu! Baristka nosí flat white automaticky zdarma.');
+        } else if (idx === 1) {
+          showToast('💼 M4 Pro 24GB: Minimální hranice pro zamezení trapného ticha.');
+        } else if (idx === 2) {
+          showToast('🤔 M3 Max: Poptávka existuje, ale už se ptají, proč nemáš M4.');
+        } else {
+          showToast(`❌ ${node.textContent.trim()}: 0 zájemkyň! Režim: Sub-5 Incel karanténa.`);
+        }
+      });
+    });
+  }
+
+  /* ==========================================================================
+     TIKTOK FYP 2026 SOUNDBOARD
+     ========================================================================== */
+  function initSoundboard() {
+    const soundBtns = document.querySelectorAll('[data-sound-type]');
+    soundBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.soundType;
+        if (type === 'aura-loss') {
+          sfx.playAuraLoss();
+          showToast('📉 -500 000 AURA BODŮ: Vytáhl jsi 8GB Air v Karlíně a disk swapuje!');
+        } else if (type === 'phonk-bass') {
+          sfx.playPhonkBass();
+          showToast('🗿 GIGACHAD MOGGING: Space Black víko otevřeno na 105 stupňů!');
+        } else if (type === 'jet-engine') {
+          sfx.playJetEngine();
+          showToast('✈️ INTEL CORE i9 BOEING 747: Dva fukary řvou na 7 200 RPM v tiché kavárně!');
+        } else if (type === 'flatline') {
+          sfx.playFlatline();
+          showToast('💀 IT\'S SO OVER: Systém zamrzl při otevření čtvrtého tabu ve Figmě!');
+        } else if (type === 'success') {
+          sfx.playSuccess();
+          showToast('✨ +1 000 000 AURA: Otřel jsi displej originálním iHadříkem za 890 Kč.');
+        }
+      });
+    });
   }
 
   /* ==========================================================================
@@ -649,7 +813,6 @@
 
       this.currentProduct = prod;
 
-      // Reset state based on product category
       if (prod.category === 'pro') {
         this.state = {
           ram: '36gb',
@@ -706,7 +869,6 @@
 
       if (!bodyEl) return;
 
-      // RAM options
       const ramOptions = [
         { id: '8gb', name: '8 GB Unified Memory', extra: 'Copium mode · swapuje i kalkulačka', price: 0, smv: -2.5 },
         { id: '16gb', name: '16 GB Unified Memory', extra: 'Normie standard (+6 000 Kč)', price: 6000, smv: 0 },
@@ -714,7 +876,6 @@
         { id: '128gb', name: '128 GB Gigachad Memory', extra: 'Zero swap navždy (+48 000 Kč)', price: 48000, smv: 2.8 }
       ];
 
-      // SSD options
       const ssdOptions = [
         { id: '256gb', name: '256 GB SSD (1 čip)', extra: 'Čtení throttlováno na polovinu', price: 0 },
         { id: '512gb', name: '512 GB SSD (2 čipy)', extra: 'Normální rychlost (+6 000 Kč)', price: 6000 },
@@ -722,9 +883,8 @@
         { id: '8tb', name: '8 TB Infinite Wealth', extra: 'Prodat auto (+68 000 Kč)', price: 68000 }
       ];
 
-      // Colors
       const colors = [
-        { id: 'spaceblack', name: 'Space Black', extra: 'Aura +10 000 v Karlíně' },
+        { id: 'spaceblack', name: 'Space Black', extra: 'Aura +1 000 000 v Karlíně' },
         { id: 'silver', name: 'Silver Vintage', extra: 'Pro účetní a rodiče' },
         { id: 'rosegold', name: 'Rose Gold Incel', extra: 'Zaručeně si k tobě nikdo nesedne' },
         { id: 'starlight', name: 'Starlight Champagne', extra: 'Střední třída s iluzemi' }
@@ -791,7 +951,6 @@
         </div>
       `;
 
-      // Attach option click handlers
       bodyEl.querySelectorAll('.config-pill').forEach(pill => {
         pill.addEventListener('click', () => {
           sfx.playClick();
@@ -820,7 +979,6 @@
         });
       });
 
-      // Update bottom price & SMV preview
       let totalPrice = prod.basePrice + this.state.ramPrice + this.state.ssdPrice;
       if (this.state.cloth) totalPrice += 890;
       if (this.state.barista) totalPrice += 499;
@@ -837,7 +995,7 @@
   const configurator = new Configurator();
 
   /* ==========================================================================
-     INTERACTIVE HYPERGAMY / SMV CALCULATOR (BLACKPILL QUIZ)
+     SMV CALCULATOR
      ========================================================================== */
   class SmvCalculator {
     constructor() {
@@ -992,15 +1150,13 @@
       if (quizPanel) quizPanel.style.display = 'none';
       if (resultPanel) resultPanel.classList.add('active');
 
-      // Calculate total points
-      let totalPts = 20; // base points
+      let totalPts = 20;
       this.questions.forEach(q => {
         const picked = this.answers[q.id];
         const opt = q.options.find(o => o.id === picked);
         if (opt) totalPts += opt.pts;
       });
 
-      // Normalize to 0-100 SMV score
       let smvScore = Math.min(100, Math.max(1, Math.round((totalPts / 120) * 100)));
 
       let tierTitle = '';
@@ -1059,7 +1215,7 @@
 
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
-          showToast('📋 Výsledek zkopírován do schránky! Můžeš flexit na Twitteru nebo Slacku.');
+          showToast('📋 Výsledek zkopírován do schránky! Můžeš flexit na TikToku nebo X.');
         });
       } else {
         showToast('📋 ' + text);
@@ -1071,12 +1227,12 @@
      SOCIAL PROOF TICKER TOAST
      ========================================================================== */
   const SOCIAL_NOTIFICATIONS = [
-    { text: 'Vojta z Karlína právě koupil ShitBook Pro 16″ M4 Max za 189 990 Kč (splátka ledvinou).', icon: '💎' },
-    { text: 'Byl zaznamenán pokus otevřít 4 taby ve Figmě na 8GB RAM v Praze 7. Operační systém nepřežil.', icon: '⚠️' },
+    { text: 'Vojta z Karlína právě koupil ShitBook Pro 16″ M4 Max za 189 990 Kč (+1 000 000 Aura).', icon: '💎' },
+    { text: 'TikToker v EMA Espresso Baru právě desk-mognul borce s M1 Air. Poražený sbalil batoh a odešel.', icon: '🗿' },
     { text: 'Petr z Brna právě objednal ShitCloth™ iHadřík za 890 Kč, aby mohl v kavárně 2 hodiny leštit logo.', icon: '✨' },
     { text: 'Slečna v EMA Espresso Baru se podívala na stříbrný M1 Air a raději si objednala ovesné latté s sebou.', icon: '☕' },
-    { text: 'Honza z Letné úspěšně připojil 14 donglů naráz. ShitBook nyní funguje jako přímotop v bytě 2+kk.', icon: '🔥' },
-    { text: 'Někdo z ČVUT FIT právě tvrdil na Redditu, že 8GB RAM na Macu stačí na střih 8K videa.', icon: '🤡' }
+    { text: 'Honza z Letné úspěšně připojil 14 donglů naráz. Ztráta 2 000 000 aura bodů.', icon: '🐙' },
+    { text: 'Někdo z ČVUT FIT právě tvrdil na TikToku, že 8GB RAM stačí v roce 2026 na střih 8K videa.', icon: '🤡' }
   ];
 
   let toastTimeout = null;
@@ -1145,7 +1301,6 @@
      THEME & NAVIGATION & HERO COLOR TOGGLES
      ========================================================================== */
   function initUI() {
-    // Theme toggle
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) {
       themeBtn.addEventListener('click', () => {
@@ -1158,7 +1313,6 @@
       });
     }
 
-    // Sound toggle
     const soundBtn = document.getElementById('soundToggleBtn');
     if (soundBtn) {
       soundBtn.addEventListener('click', () => {
@@ -1169,7 +1323,6 @@
       });
     }
 
-    // Cart drawer toggle
     const cartToggle = document.getElementById('cartToggleBtn');
     const cartClose = document.getElementById('cartDrawerClose');
     const cartDrawer = document.getElementById('cartDrawer');
@@ -1194,7 +1347,6 @@
       cartOverlay.addEventListener('click', closeDrawer);
     }
 
-    // Promo code form
     const promoBtn = document.getElementById('promoApplyBtn');
     const promoInput = document.getElementById('promoInput');
     if (promoBtn && promoInput) {
@@ -1212,7 +1364,6 @@
       });
     }
 
-    // Filter tabs
     const filterBtns = document.querySelectorAll('.filter-btn');
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1223,7 +1374,6 @@
       });
     });
 
-    // Delegate product buttons
     document.addEventListener('click', (e) => {
       const configBtn = e.target.closest('[data-open-config]');
       if (configBtn) {
@@ -1245,22 +1395,6 @@
       }
     });
 
-    // Hero 3D interactive color picker
-    const swatches = document.querySelectorAll('.color-swatch');
-    const heroLid = document.getElementById('heroLaptopLid');
-    swatches.forEach(sw => {
-      sw.addEventListener('click', () => {
-        sfx.playClick();
-        swatches.forEach(s => s.classList.remove('active'));
-        sw.classList.add('active');
-        const color = sw.dataset.color;
-        if (heroLid) {
-          heroLid.className = `laptop-lid color-${color}`;
-        }
-      });
-    });
-
-    // Mobile menu toggle
     const mobBtn = document.getElementById('mobileMenuToggle');
     const navLinks = document.querySelector('.nav-links');
     if (mobBtn && navLinks) {
@@ -1269,7 +1403,7 @@
         navLinks.style.display = visible ? 'none' : 'flex';
         if (!visible) {
           navLinks.style.position = 'absolute';
-          navLinks.style.top = '64px';
+          navLinks.style.top = '52px';
           navLinks.style.left = '0';
           navLinks.style.width = '100%';
           navLinks.style.background = 'var(--bg-secondary)';
@@ -1285,7 +1419,6 @@
      INIT ON DOM READY
      ========================================================================== */
   document.addEventListener('DOMContentLoaded', () => {
-    // Restore saved theme
     const savedTheme = localStorage.getItem('shitbook_theme');
     if (savedTheme) {
       document.documentElement.setAttribute('data-theme', savedTheme);
@@ -1294,12 +1427,12 @@
     renderProducts('all');
     cart.render();
     initUI();
+    initHypergamyDiagram();
+    initSoundboard();
     new SmvCalculator();
     initCheckout();
 
-    // Start ticker after 3 seconds
     setTimeout(startSocialTicker, 3000);
   });
 
 })();
-
